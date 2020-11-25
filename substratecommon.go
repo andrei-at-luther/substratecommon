@@ -3,10 +3,15 @@ package substratecommon
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/rpc"
+	"os"
+	"os/exec"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/sirupsen/logrus"
+
+	hclog "github.com/hashicorp/go-hclog"
 )
 
 // ConcreteRequestOptions is a variant of RequestOptions that is
