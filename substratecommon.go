@@ -2,6 +2,7 @@ package substratecommon
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/rpc"
@@ -673,8 +674,8 @@ var pluginMap = map[string]plugin.Plugin{
 	"substrate": &Plugin{},
 }
 
-func EncodePhylumBytes(phylum string) []byte {
-	return shiroclient.EncodePhylumBytes([]byte(phylum))
+func EncodePhylumBytes(phylum string) string {
+	return base64.StdEncoding.EncodeToString([]byte(phylum))
 }
 
 func Connect(cmd string, user func(Substrate)) {
