@@ -673,6 +673,10 @@ var pluginMap = map[string]plugin.Plugin{
 	"substrate": &Plugin{},
 }
 
+func EncodePhylumBytes(phylum string) []byte {
+	return shiroclient.EncodePhylumBytes([]byte(phylum))
+}
+
 func Connect(cmd string, user func(Substrate)) {
 	// Create an hclog.Logger
 	logger := hclog.New(&hclog.LoggerOptions{
