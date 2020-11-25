@@ -234,6 +234,7 @@ func WithCCFetchURLProxy(proxy string) Config {
 	})
 }
 
+// FlattenOptions will flatten a list of config options.
 func FlattenOptions(configs ...Config) *ConcreteRequestOptions {
 	opt := &RequestOptions{}
 
@@ -311,96 +312,128 @@ type Substrate interface {
 	IsTimeoutError(err error) bool
 }
 
-type ArgsNewRPC struct{}
+// ArgsNewRPC encodes the arguments to NewRPC
+type ArgsNewRPC struct {
+}
+
+// RespNewRPC encodes the response from NewRPC
 type RespNewRPC struct {
 	Tag string
 	Err *Error
 }
 
+// ArgsCloseRPC encodes the arguments to CloseRPC
 type ArgsCloseRPC struct {
 	Tag string
 }
+
+// RespCloseRPC encodes the response from CloseRPC
 type RespCloseRPC struct {
 	Err *Error
 }
 
+// ArgsNewMockFrom encodes the arguments to NewMockFrom
 type ArgsNewMockFrom struct {
 	Name     string
 	Version  string
 	Snapshot []byte
 }
+
+// RespNewMockFrom encodes the response from NewMockFrom
 type RespNewMockFrom struct {
 	Tag string
 	Err *Error
 }
 
+// ArgsSetCreatorWithAttributesMock encodes the arguments to SetCreatorWithAttributesMock
 type ArgsSetCreatorWithAttributesMock struct {
 	Tag     string
 	Creator string
 	Attrs   map[string]string
 }
+
+// RespSetCreatorWithAttributesMock encodes the response from SetCreatorWithAttributesMock
 type RespSetCreatorWithAttributesMock struct {
 	Err *Error
 }
 
+// ArgsSnapshotMock encodes the arguments to SnapshotMock
 type ArgsSnapshotMock struct {
 	Tag string
 }
+
+// RespSnapshotMock encodes the response from SnapshotMock
 type RespSnapshotMock struct {
 	Snapshot []byte
 	Err      *Error
 }
 
+// ArgsCloseMock encodes the arguments to CloseMock
 type ArgsCloseMock struct {
 	Tag string
 }
+
+// RespCloseMock encodes the response from CloseMock
 type RespCloseMock struct {
 	Err *Error
 }
 
+// ArgsInit encodes the arguments to Init
 type ArgsInit struct {
 	Tag     string
 	Phylum  string
 	Options *ConcreteRequestOptions
 }
+
+// RespInit encodes the response from Init
 type RespInit struct {
 	Err *Error
 }
 
+// ArgsCall encodes the arguments to Call
 type ArgsCall struct {
 	Tag     string
 	Command string
 	Options *ConcreteRequestOptions
 }
+
+// RespCall encodes the response from Call
 type RespCall struct {
 	Response *Response
 	Err      *Error
 }
 
+// ArgsQueryInfo encodes the arguments to QueryInfo
 type ArgsQueryInfo struct {
 	Tag     string
 	Options *ConcreteRequestOptions
 }
+
+// RespQueryInfo encodes the response from QueryInfo
 type RespQueryInfo struct {
 	Height uint64
 	Err    *Error
 }
 
+// ArgsQueryBlock encodes the arguments to QueryBlock
 type ArgsQueryBlock struct {
 	Tag     string
 	Height  uint64
 	Options *ConcreteRequestOptions
 }
+
+// RespQueryBlock encodes the response from QueryBlock
 type RespQueryBlock struct {
 	Block *Block
 	Err   *Error
 }
 
-// Here is an implementation that talks over RPC
+// PluginRPC is an implementation that talks over RPC
 type PluginRPC struct{ client *rpc.Client }
 
 var errRPC = fmt.Errorf("RPC failure")
 
+// NewRPC forwards the call
 func (g *PluginRPC) NewRPC() (string, error) {
 	var resp RespNewRPC
 	err := g.client.Call("Plugin.NewRPC", &ArgsNewRPC{}, &resp)
@@ -413,6 +446,7 @@ func (g *PluginRPC) NewRPC() (string, error) {
 	return resp.Tag, nil
 }
 
+// CloseRPC forwards the call
 func (g *PluginRPC) CloseRPC(tag string) error {
 	var resp RespCloseRPC
 	err := g.client.Call("Plugin.CloseRPC", &ArgsCloseRPC{Tag: tag}, &resp)
@@ -425,6 +459,7 @@ func (g *PluginRPC) CloseRPC(tag string) error {
 	return nil
 }
 
+// NewMockFrom forwards the call
 func (g *PluginRPC) NewMockFrom(name string, version string, snapshot []byte) (string, error) {
 	var resp RespNewMockFrom
 	err := g.client.Call("Plugin.NewMockFrom", &ArgsNewMockFrom{Name: name, Version: version, Snapshot: snapshot}, &resp)
@@ -437,6 +472,7 @@ func (g *PluginRPC) NewMockFrom(name string, version string, snapshot []byte) (s
 	return resp.Tag, nil
 }
 
+// SetCreatorWithAttributesMock forwards the call
 func (g *PluginRPC) SetCreatorWithAttributesMock(tag string, creator string, attrs map[string]string) error {
 	var resp RespSetCreatorWithAttributesMock
 	err := g.client.Call("Plugin.SetCreatorWithAttributesMock", &ArgsSetCreatorWithAttributesMock{Tag: tag, Creator: creator, Attrs: attrs}, &resp)
@@ -449,6 +485,7 @@ func (g *PluginRPC) SetCreatorWithAttributesMock(tag string, creator string, att
 	return nil
 }
 
+// SnapshotMock forwards the call
 func (g *PluginRPC) SnapshotMock(tag string) ([]byte, error) {
 	var resp RespSnapshotMock
 	err := g.client.Call("Plugin.SnapshotMock", &ArgsSnapshotMock{Tag: tag}, &resp)
@@ -461,6 +498,7 @@ func (g *PluginRPC) SnapshotMock(tag string) ([]byte, error) {
 	return resp.Snapshot, nil
 }
 
+// CloseMock forwards the call
 func (g *PluginRPC) CloseMock(tag string) error {
 	var resp RespCloseMock
 	err := g.client.Call("Plugin.CloseMock", &ArgsCloseMock{Tag: tag}, &resp)
@@ -473,6 +511,7 @@ func (g *PluginRPC) CloseMock(tag string) error {
 	return nil
 }
 
+// Init forwards the call
 func (g *PluginRPC) Init(tag string, phylum string, options *ConcreteRequestOptions) error {
 	var resp RespInit
 	err := g.client.Call("Plugin.Init", &ArgsInit{Tag: tag, Phylum: phylum, Options: options}, &resp)
@@ -485,6 +524,7 @@ func (g *PluginRPC) Init(tag string, phylum string, options *ConcreteRequestOpti
 	return nil
 }
 
+// Call forwards the call
 func (g *PluginRPC) Call(tag string, command string, options *ConcreteRequestOptions) (*Response, error) {
 	var resp RespCall
 	err := g.client.Call("Plugin.Call", &ArgsCall{Tag: tag, Command: command, Options: options}, &resp)
@@ -497,6 +537,7 @@ func (g *PluginRPC) Call(tag string, command string, options *ConcreteRequestOpt
 	return resp.Response, nil
 }
 
+// QueryInfo forwards the call
 func (g *PluginRPC) QueryInfo(tag string, options *ConcreteRequestOptions) (uint64, error) {
 	var resp RespQueryInfo
 	err := g.client.Call("Plugin.QueryInfo", &ArgsQueryInfo{Tag: tag, Options: options}, &resp)
@@ -509,6 +550,7 @@ func (g *PluginRPC) QueryInfo(tag string, options *ConcreteRequestOptions) (uint
 	return resp.Height, nil
 }
 
+// QueryBlock forwards the call
 func (g *PluginRPC) QueryBlock(tag string, height uint64, options *ConcreteRequestOptions) (*Block, error) {
 	var resp RespQueryBlock
 	err := g.client.Call("Plugin.QueryInfo", &ArgsQueryBlock{Tag: tag, Height: height, Options: options}, &resp)
@@ -521,6 +563,7 @@ func (g *PluginRPC) QueryBlock(tag string, height uint64, options *ConcreteReque
 	return resp.Block, nil
 }
 
+// IsTimeoutError checks if the error is a timeout error. This is done locally.
 func (g *PluginRPC) IsTimeoutError(err error) bool {
 	if e, ok := err.(Error); ok {
 		return e.IsTimeoutError
@@ -528,8 +571,8 @@ func (g *PluginRPC) IsTimeoutError(err error) bool {
 	return false
 }
 
-// Here is the RPC server that PluginRPC talks to, conforming to
-// the requirements of net/rpc
+// PluginRPCServer is the RPC server that PluginRPC talks to,
+// conforming to the requirements of net/rpc
 type PluginRPCServer struct {
 	// This is the real implementation
 	Impl Substrate
@@ -540,6 +583,7 @@ func (s *PluginRPCServer) newError(err error) *Error {
 	return &Error{IsTimeoutError: b, Diagnostic: err.Error()}
 }
 
+// NewRPC forwards the call
 func (s *PluginRPCServer) NewRPC(args *ArgsNewRPC, resp *RespNewRPC) error {
 	tag, err := s.Impl.NewRPC()
 	if err != nil {
@@ -550,6 +594,7 @@ func (s *PluginRPCServer) NewRPC(args *ArgsNewRPC, resp *RespNewRPC) error {
 	return nil
 }
 
+// CloseRPC forwards the call
 func (s *PluginRPCServer) CloseRPC(args *ArgsCloseRPC, resp *RespCloseRPC) error {
 	err := s.Impl.CloseRPC(args.Tag)
 	if err != nil {
@@ -559,6 +604,7 @@ func (s *PluginRPCServer) CloseRPC(args *ArgsCloseRPC, resp *RespCloseRPC) error
 	return nil
 }
 
+// NewMockFrom forwards the call
 func (s *PluginRPCServer) NewMockFrom(args *ArgsNewMockFrom, resp *RespNewMockFrom) error {
 	tag, err := s.Impl.NewMockFrom(args.Name, args.Version, args.Snapshot)
 	if err != nil {
@@ -569,6 +615,7 @@ func (s *PluginRPCServer) NewMockFrom(args *ArgsNewMockFrom, resp *RespNewMockFr
 	return nil
 }
 
+// SetCreatorWithAttributesMock forwards the call
 func (s *PluginRPCServer) SetCreatorWithAttributesMock(args *ArgsSetCreatorWithAttributesMock, resp *RespSetCreatorWithAttributesMock) error {
 	err := s.Impl.SetCreatorWithAttributesMock(args.Tag, args.Creator, args.Attrs)
 	if err != nil {
@@ -578,6 +625,7 @@ func (s *PluginRPCServer) SetCreatorWithAttributesMock(args *ArgsSetCreatorWithA
 	return nil
 }
 
+// SnapshotMock forwards the call
 func (s *PluginRPCServer) SnapshotMock(args *ArgsSnapshotMock, resp *RespSnapshotMock) error {
 	dat, err := s.Impl.SnapshotMock(args.Tag)
 	if err != nil {
@@ -588,6 +636,7 @@ func (s *PluginRPCServer) SnapshotMock(args *ArgsSnapshotMock, resp *RespSnapsho
 	return nil
 }
 
+// CloseMock forwards the call
 func (s *PluginRPCServer) CloseMock(args *ArgsCloseMock, resp *RespCloseMock) error {
 	err := s.Impl.CloseMock(args.Tag)
 	if err != nil {
@@ -597,6 +646,7 @@ func (s *PluginRPCServer) CloseMock(args *ArgsCloseMock, resp *RespCloseMock) er
 	return nil
 }
 
+// Init forwards the call
 func (s *PluginRPCServer) Init(args *ArgsInit, resp *RespInit) error {
 	err := s.Impl.Init(args.Tag, args.Phylum, args.Options)
 	if err != nil {
@@ -606,6 +656,7 @@ func (s *PluginRPCServer) Init(args *ArgsInit, resp *RespInit) error {
 	return nil
 }
 
+// Call forwards the call
 func (s *PluginRPCServer) Call(args *ArgsCall, resp *RespCall) error {
 	res, err := s.Impl.Call(args.Tag, args.Command, args.Options)
 	if err != nil {
@@ -616,6 +667,7 @@ func (s *PluginRPCServer) Call(args *ArgsCall, resp *RespCall) error {
 	return nil
 }
 
+// QueryInfo forwards the call
 func (s *PluginRPCServer) QueryInfo(args *ArgsQueryInfo, resp *RespQueryInfo) error {
 	height, err := s.Impl.QueryInfo(args.Tag, args.Options)
 	if err != nil {
@@ -626,6 +678,7 @@ func (s *PluginRPCServer) QueryInfo(args *ArgsQueryInfo, resp *RespQueryInfo) er
 	return nil
 }
 
+// QueryBlock forwards the call
 func (s *PluginRPCServer) QueryBlock(args *ArgsQueryBlock, resp *RespQueryBlock) error {
 	block, err := s.Impl.QueryBlock(args.Tag, args.Height, args.Options)
 	if err != nil {
@@ -636,13 +689,8 @@ func (s *PluginRPCServer) QueryBlock(args *ArgsQueryBlock, resp *RespQueryBlock)
 	return nil
 }
 
-// This is the implementation of plugin.Plugin so we can serve/consume this
-//
-// This has two methods: Server must return an RPC server for this plugin
-// type. We construct a PluginRPCServer for this.
-//
-// Client must return an implementation of our interface that communicates
-// over an RPC client. We return PluginRPC for this.
+// Plugin is the implementation of plugin.Plugin so we can
+// serve/consume this.
 //
 // Ignore MuxBroker. That is used to create more multiplexed streams on our
 // plugin connection and is a more advanced use case.
@@ -651,10 +699,14 @@ type Plugin struct {
 	Impl Substrate
 }
 
+// Server returns an RPC server for this plugin type. We construct a
+// PluginRPCServer for this.
 func (p *Plugin) Server(*plugin.MuxBroker) (interface{}, error) {
 	return &PluginRPCServer{Impl: p.Impl}, nil
 }
 
+// Client returns an implementation of our interface that communicates
+// over an RPC client. We return PluginRPC for this.
 func (Plugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
 	return &PluginRPC{client: c}, nil
 }
@@ -674,10 +726,13 @@ var pluginMap = map[string]plugin.Plugin{
 	"substrate": &Plugin{},
 }
 
+// EncodePhylumBytes encodes a phylum in the manner expected by
+// mock substrate.
 func EncodePhylumBytes(phylum string) string {
 	return base64.StdEncoding.EncodeToString([]byte(phylum))
 }
 
+// Connect connects to a plugin.
 func Connect(cmd string, user func(Substrate)) {
 	// Create an hclog.Logger
 	logger := hclog.New(&hclog.LoggerOptions{
