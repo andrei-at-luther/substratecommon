@@ -711,6 +711,12 @@ func (Plugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
 	return &PluginRPC{client: c}, nil
 }
 
+// EncodePhylumBytes encodes a phylum in the manner expected by
+// mock substrate.
+func EncodePhylumBytes(phylum string) string {
+	return base64.StdEncoding.EncodeToString([]byte(phylum))
+}
+
 // handshakeConfigs are used to just do a basic handshake between
 // a plugin and host. If the handshake fails, a user friendly error is shown.
 // This prevents users from executing bad plugins or executing a plugin
@@ -726,26 +732,49 @@ var pluginMap = map[string]plugin.Plugin{
 	"substrate": &Plugin{},
 }
 
-// EncodePhylumBytes encodes a phylum in the manner expected by
-// mock substrate.
-func EncodePhylumBytes(phylum string) string {
-	return base64.StdEncoding.EncodeToString([]byte(phylum))
+type connectOption struct {
+	level   hclog.Level
+	command string
+}
+
+type ConnectOption func(co *connectOption) error
+
+func ConnectWithLogLevel(level hclog.Level) func(co *connectOption) error {
+	return (func(co *connectOption) error {
+		co.level = level
+		return nil
+	})
+}
+
+func ConnectWithCommand(command string) func(co *connectOption) error {
+	return (func(co *connectOption) error {
+		co.command = command
+		return nil
+	})
 }
 
 // Connect connects to a plugin.
-func Connect(cmd string, user func(Substrate)) {
+func Connect(user func(Substrate) error, opts ...ConnectOption) error {
+	co := &connectOption{level: hclog.Debug}
+
+	for _, opt := range opts {
+		if err := opt(co); err != nil {
+			panic(err)
+		}
+	}
+
 	// Create an hclog.Logger
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   "plugin",
 		Output: os.Stdout,
-		Level:  hclog.Debug,
+		Level:  co.level,
 	})
 
 	// We're a host! Start by launching the plugin process.
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig: handshakeConfig,
 		Plugins:         pluginMap,
-		Cmd:             exec.Command(cmd),
+		Cmd:             exec.Command(co.command),
 		Logger:          logger,
 	})
 	defer client.Kill()
@@ -762,8 +791,9 @@ func Connect(cmd string, user func(Substrate)) {
 		log.Fatal(err)
 	}
 
-	// We should have a Greeter now! This feels like a normal interface
-	// implementation but is in fact over an RPC connection.
+	// This feels like a normal interface implementation but is in
+	// fact over an RPC connection.
 	substrate := raw.(Substrate)
-	user(substrate)
+
+	return user(substrate)
 }
