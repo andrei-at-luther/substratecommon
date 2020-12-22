@@ -607,6 +607,7 @@ func (s *PluginRPCServer) CloseRPC(args *ArgsCloseRPC, resp *RespCloseRPC) error
 // NewMockFrom forwards the call
 func (s *PluginRPCServer) NewMockFrom(args *ArgsNewMockFrom, resp *RespNewMockFrom) error {
 	fmt.Printf("s.Impl=%p\n", s.Impl)
+	fmt.Fprintf(os.Stderr, "s.Impl=%p\n", s.Impl)
 	tag, err := s.Impl.NewMockFrom(args.Name, args.Version, args.Snapshot)
 	if err != nil {
 		resp.Err = s.newError(err)
@@ -777,6 +778,9 @@ func Connect(user func(Substrate) error, opts ...ConnectOption) error {
 		Plugins:         pluginMap,
 		Cmd:             exec.Command(co.command),
 		Logger:          logger,
+		Stderr:          os.Stderr,
+		SyncStdout:      os.Stderr,
+		SyncStderr:      os.Stderr,
 	})
 	defer client.Kill()
 
