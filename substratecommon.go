@@ -606,6 +606,7 @@ func (s *PluginRPCServer) CloseRPC(args *ArgsCloseRPC, resp *RespCloseRPC) error
 
 // NewMockFrom forwards the call
 func (s *PluginRPCServer) NewMockFrom(args *ArgsNewMockFrom, resp *RespNewMockFrom) error {
+	fmt.Printf("s.Impl=%p\n", s.Impl)
 	tag, err := s.Impl.NewMockFrom(args.Name, args.Version, args.Snapshot)
 	if err != nil {
 		resp.Err = s.newError(err)
